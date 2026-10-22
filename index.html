@@ -66,9 +66,7 @@ function startSpeech(){
  if(listening){recognition.stop();return}
  const original=$('noteText').value.trim();let transcriptParts=[];
  const original=$('noteText').value.trim();let finalText='';
- recognition.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){let t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+' ';else interim+=t} $('noteText').value=[original,finalText.trim(),interim].filter(Boolean).join(original?' ':'');};
  recognition.onerror=e=>{$('status').textContent=e.error==='not-allowed'?'Povoľ mikrofón v prehliadači.':'Diktovanie sa prerušilo ('+e.error+').';};
- try{recognition.start()}catch(e){$('status').textContent='Nepodarilo sa spustiť mikrofón. Skús znova.'}
 }
 $('mic').onclick=startSpeech;
 $('save').onclick=()=>{const text=$('noteText').value.trim();if(!text){alert('Najprv nadiktuj alebo napíš poznámku.');return}let ns=getNotes(),id=$('save').dataset.edit;const obj={id:id||String(Date.now()),text,category:$('category').value,reminder:$('reminder').value||'',created:Date.now(),done:false};if(id){let old=ns.find(n=>n.id===id);if(old){obj.created=old.created;obj.done=old.done;ns=ns.map(n=>n.id===id?obj:n)}delete $('save').dataset.edit}else ns.push(obj);putNotes(ns);$('noteText').value='';$('reminder').value='';$('save').textContent='✓ Uložiť poznámku';$('status').textContent='Poznámka uložená v tomto zariadení.';renderNotes()};
