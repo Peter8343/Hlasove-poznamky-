@@ -194,19 +194,31 @@ function startSpeech(){
       $('mic').textContent = '■';
       $('status').textContent = 'Počúvam… Hovor teraz. Ťukni na stop, keď skončíš.';
     };
-    recognition.onresult = event => {
-      if(session !== currentSession) return;
-      for(let i=event.resultIndex; i<event.results.length; i++){
-        const result = event.results[i];
-        const transcript = (result[0] && result[0].transcript) ? result[0].transcript.trim() : '';
-        // Only store final results by index. Interim hypotheses are not repeatedly appended.
-        if(result.isFinal) stableParts[i] = transcript;
-        else stableParts[i] = transcript; // replace the interim hypothesis at its index on each update
-      }
-      const raw = stableParts.filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
-      const cleaned = normalizeSpeech(raw);
-      $('noteText').value = [speechOriginal, cleaned].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
-    };
+    
+recognition.onresult = event => {
+  if(session !== currentSession) return;
+
+  for(let i = event.resultIndex; i < event.results.length; i++){
+    const result = event.results[i];
+    const transcript = result[0] && result[0].transcript
+      ? result[0].transcript.trim()
+      : '';
+
+    if(result.isFinal){
+      stableParts[i] = transcript;
+    }
+  }
+
+  const raw = stableParts.filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  const cleaned = normalizeSpeech(raw);
+
+  $('noteText').value = [speechOriginal, cleaned]
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g,' ')
+    .trim();
+};
+
     recognition.onerror = event => {
       if(session !== currentSession) return;
       $('status').textContent = event.error === 'not-allowed' || event.error === 'service-not-allowed'
