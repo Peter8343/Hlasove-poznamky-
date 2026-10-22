@@ -64,9 +64,9 @@ function startSpeech(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){$('status').textContent='Diktovanie tento prehliadač nepodporuje. Skús Chrome a ikonu mikrofónu na klávesnici.';return}
  if(listening){recognition.stop();return}
- recognition=new SR();recognition.lang='sk-SK';recognition.continuous=true;recognition.interimResults=true;recognition.maxAlternatives=1;
+ const original=$('noteText').value.trim();let transcriptParts=[];
  const original=$('noteText').value.trim();let finalText='';
- recognition.onstart=()=>{listening=true;$('mic').classList.add('recording');$('mic').textContent='■';$('status').textContent='Počúvam… Ťukni na stop, keď skončíš.'};
+ recognition.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){transcriptParts[i]=e.results[i][0].transcript;}const spoken=transcriptParts.filter(Boolean).join(' ');$('noteText').value=[original,spoken].filter(Boolean).join(' ');};
  recognition.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){let t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+' ';else interim+=t} $('noteText').value=[original,finalText.trim(),interim].filter(Boolean).join(original?' ':'');};
  recognition.onerror=e=>{$('status').textContent=e.error==='not-allowed'?'Povoľ mikrofón v prehliadači.':'Diktovanie sa prerušilo ('+e.error+').';};
  recognition.onend=()=>{listening=false;$('mic').classList.remove('recording');$('mic').textContent='🎙';if($('noteText').value.trim())$('status').textContent='Prepis pripravený — skontroluj ho a ulož.';else $('status').textContent='Pripravené na diktovanie';};
