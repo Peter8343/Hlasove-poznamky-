@@ -195,16 +195,14 @@ function startSpeech(){
       $('status').textContent = 'Počúvam… Hovor teraz. Ťukni na stop, keď skončíš.';
     };
     
+
 recognition.onresult = event => {
   if(session !== currentSession) return;
 
   for(let i = event.resultIndex; i < event.results.length; i++){
     const result = event.results[i];
-    const transcript = result[0] && result[0].transcript
-      ? result[0].transcript.trim()
-      : '';
-
     if(result.isFinal){
+      const transcript = result[0]?.transcript?.trim() || '';
       stableParts[i] = transcript;
     }
   }
@@ -218,6 +216,7 @@ recognition.onresult = event => {
     .replace(/\s+/g,' ')
     .trim();
 };
+
 
     recognition.onerror = event => {
       if(session !== currentSession) return;
